@@ -27,31 +27,6 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
         let font = UIFont.systemFont(ofSize: 16)
         
         do {
-            let title = "This is UIImage attachment:"
-            text.append(NSAttributedString(string: title, attributes: nil))
-            
-            var image = UIImage(named: "dribbble64_imageio")
-            if let CGImage = image?.cgImage {
-                image = UIImage(cgImage: CGImage, scale: 2, orientation: .up)
-            }
-            let attachText = NSMutableAttributedString.bs_attachmentString(with: image, contentMode: UIView.ContentMode.center, attachmentSize: image!.size, alignTo: font, alignment: TextVerticalAlignment.center)
-            text.append(attachText!)
-            text.append(NSAttributedString(string: "\n", attributes: nil))
-        }
-        
-        do {
-            let title = "This is UIView attachment: "
-            text.append(NSAttributedString(string: title, attributes: nil))
-            
-            let switcher = UISwitch()
-            switcher.sizeToFit()
-            
-            let attachText = NSMutableAttributedString.bs_attachmentString(with: switcher, contentMode: UIView.ContentMode.center, attachmentSize: switcher.size, alignTo: font, alignment: TextVerticalAlignment.center)
-            text.append(attachText!)
-            text.append(NSAttributedString(string: "\n", attributes: nil))
-        }
-        
-        do {
             let title = "This is UIImageView attachment: "
             text.append(NSAttributedString(string: title, attributes: nil))
             
@@ -60,11 +35,14 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
             let tapGes = UITapGestureRecognizer(target: self, action: #selector(tapAction(_:)))
             view1.addGestureRecognizer(tapGes)
             view1.delegate = self
+            view1.index = text.length
             
             view1AttributedString = NSMutableAttributedString.bs_attachmentString(with: view1, contentMode: UIView.ContentMode.center, attachmentSize: view1.size, alignTo: nil, alignment: TextVerticalAlignment.top)
             text.append(view1AttributedString!)
             text.append(NSAttributedString(string: "\n", attributes: nil))
         }
+        
+        
         
         do {
             
@@ -187,7 +165,24 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    func reloadScableImage(){
+    func reloadScableImage(view:scableImageView){
+        let endFrame = view.frame
+        let convertedFrame = textView.convert(endFrame, from: view)
+        print("convertedFrame:\(convertedFrame)")
         
+        let newView = scableImageView(frame: endFrame)
+        newView.index = view.index
+        newView.delegate = self
+        newView.backgroundColor = .green
+        let newAttchmentString = NSMutableAttributedString.bs_attachmentString(with: newView, contentMode: .scaleAspectFill, attachmentSize: newView.size, alignTo: nil, alignment: .center)!
+        
+        let mutable = NSMutableAttributedString(attributedString: textView.attributedText!)
+        let replaceRange = NSRange(location: view.index, length: 1)
+        mutable.replaceCharacters(in: replaceRange, with: newAttchmentString)
+        textView.attributedText = mutable
+        
+        
+//        let path  = UIBezierPath(rect: convertedFrame)
+//        textView.exclusionPaths = [path]
     }
 }
