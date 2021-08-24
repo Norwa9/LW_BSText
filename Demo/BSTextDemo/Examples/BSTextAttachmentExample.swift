@@ -12,7 +12,9 @@ import YYImage
 
 class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
     
-    private let label = MyLabel()
+    private let textView = BSTextView()
+    var view1AttributedString:NSMutableAttributedString!
+    var view1:scableImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +48,21 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
             
             let attachText = NSMutableAttributedString.bs_attachmentString(with: switcher, contentMode: UIView.ContentMode.center, attachmentSize: switcher.size, alignTo: font, alignment: TextVerticalAlignment.center)
             text.append(attachText!)
+            text.append(NSAttributedString(string: "\n", attributes: nil))
+        }
+        
+        do {
+            let title = "This is UIImageView attachment: "
+            text.append(NSAttributedString(string: title, attributes: nil))
+            
+            view1 = scableImageView(frame: CGRect(origin: .zero, size: CGSize(width: 200, height: 200)))
+            view1.backgroundColor = .black
+            let tapGes = UITapGestureRecognizer(target: self, action: #selector(tapAction(_:)))
+            view1.addGestureRecognizer(tapGes)
+            view1.delegate = self
+            
+            view1AttributedString = NSMutableAttributedString.bs_attachmentString(with: view1, contentMode: UIView.ContentMode.center, attachmentSize: view1.size, alignTo: nil, alignment: TextVerticalAlignment.top)
+            text.append(view1AttributedString!)
             text.append(NSAttributedString(string: "\n", attributes: nil))
         }
         
@@ -90,28 +107,25 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
         
         text.bs_font = font
         
-        label.isUserInteractionEnabled = true
-        label.numberOfLines = 0
-        label.textVerticalAlignment = TextVerticalAlignment.top
-        label.size = CGSize(width: 260, height: 260)
-        label.center = CGPoint(x: view.width / 2, y: view.height / 2)
-        label.attributedText = text
-        addSeeMoreButton()
-        view.addSubview(label)
+        textView.isUserInteractionEnabled = true
+        textView.textVerticalAlignment = TextVerticalAlignment.top
+        textView.frame = view.frame
+        textView.attributedText = text
+        view.addSubview(textView)
         
-        label.layer.borderWidth = 0.5
-        label.layer.borderColor = UIColor(red: 0.000, green: 0.463, blue: 1.000, alpha: 1.000).cgColor
+        textView.layer.borderWidth = 0.5
+        textView.layer.borderColor = UIColor(red: 0.000, green: 0.463, blue: 1.000, alpha: 1.000).cgColor
         
         
-        weak var wlabel = label
+        weak var wlabel = textView
         let dot: UIView? = newDotView()
-        dot?.center = CGPoint(x: label.width, y: label.height)
+        dot?.center = CGPoint(x: textView.width, y: textView.height)
         dot?.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
         if let dot = dot {
-            label.addSubview(dot)
+            textView.addSubview(dot)
         }
         let gesture = BSGestureRecognizer()
-        gesture.targetView = label
+        gesture.targetView = textView
         gesture.action = { gesture, state in
             if state != BSGestureRecognizerState.moved {
                 return
@@ -126,34 +140,12 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
         dot?.addGestureRecognizer(gesture)
     }
     
-    func addSeeMoreButton() {
-        weak var _self = self
-        let text = NSMutableAttributedString(string: "...more")
-        
-        let hi = TextHighlight()
-        hi.color = UIColor(red: 0.578, green: 0.790, blue: 1.000, alpha: 1.000)
-        hi.tapAction = { containerView, text, range, rect in
-            _self?.label.sizeToFit()
-        }
-        
-        text.bs_set(color: UIColor(red: 0.000, green: 0.449, blue: 1.000, alpha: 1.000), range: ((text.string as NSString?)?.range(of: "more"))!)
-        text.bs_set(textHighlight: hi, range: ((text.string as NSString?)?.range(of: "more"))!)
-        text.bs_font = self.label.font
-        
-        let seeMore = BSLabel()
-        seeMore.attributedText = text
-        seeMore.sizeToFit()
-        
-        let truncationToken = NSAttributedString.bs_attachmentString(with: seeMore, contentMode: UIView.ContentMode.center, attachmentSize: seeMore.size, alignTo: text.bs_font, alignment: TextVerticalAlignment.center)
-        self.label.truncationToken = truncationToken
-    }
-    
     func newDotView() -> UIView? {
         let view = UIView()
         view.size = CGSize(width: 50, height: 50)
         
         let dot = UIView()
-        dot.size = CGSize(width: 10, height: 10)
+        dot.size = CGSize(width: 20, height: 20)
         dot.backgroundColor = UIColor(red: 0.000, green: 0.463, blue: 1.000, alpha: 1.000)
         dot.clipsToBounds = true
         dot.layer.cornerRadius = dot.height / 2
@@ -164,13 +156,38 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        let p: CGPoint = gestureRecognizer.location(in: label)
-        if p.x < label.width - 20 {
+        let p: CGPoint = gestureRecognizer.location(in: textView)
+        if p.x < textView.width - 20 {
             return false
         }
-        if p.y < label.height - 20 {
+        if p.y < textView.height - 20 {
             return false
         }
         return true
+    }
+    
+    @objc func tapAction(_ sender:UITapGestureRecognizer){
+        print("tapped view 1")
+//        let origin = view1.origin
+//        let rand = Int.random(in: 1..<4)
+//        print("rand = \(rand)")
+//        view1.frame = CGRect(origin: origin, size: CGSize(width: 50 * rand, height: 50 * rand))
+        for attribute in view1AttributedString.attributes(at: 0, effectiveRange: nil){
+            if let attchemnt = attribute.value as? TextAttachment{
+                attchemnt.contentMode = .scaleAspectFill
+                attchemnt.contentInsets = .zero
+                if let view = attchemnt.content as? UIView{
+                    let rand = Int.random(in: 1..<4)
+                    print("rand = \(rand)")
+                    view.frame = CGRect(origin: .zero, size: CGSize(width: 50 * rand, height: 50 * rand))
+                    
+                    print("view.frame:\(view.frame)")
+                }
+            }
+        }
+    }
+    
+    func reloadScableImage(){
+        
     }
 }
