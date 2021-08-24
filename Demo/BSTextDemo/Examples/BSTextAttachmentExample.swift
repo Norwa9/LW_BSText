@@ -13,8 +13,6 @@ import YYImage
 class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
     
     private let textView = BSTextView()
-    var view1AttributedString:NSMutableAttributedString!
-    var view1:scableImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,17 +25,29 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
         let font = UIFont.systemFont(ofSize: 16)
         
         do {
-            let title = "This is UIImageView attachment: "
+            let title = "This is UIImageView attachment:\n"
             text.append(NSAttributedString(string: title, attributes: nil))
             
-            view1 = scableImageView(frame: CGRect(origin: .zero, size: CGSize(width: 200, height: 200)))
+            let view1 = scableImageView(frame: CGRect(origin: .zero, size: CGSize(width: 200, height: 200)))
             view1.backgroundColor = .black
             let tapGes = UITapGestureRecognizer(target: self, action: #selector(tapAction(_:)))
             view1.addGestureRecognizer(tapGes)
             view1.delegate = self
             view1.index = text.length
             
-            view1AttributedString = NSMutableAttributedString.bs_attachmentString(with: view1, contentMode: UIView.ContentMode.center, attachmentSize: view1.size, alignTo: nil, alignment: TextVerticalAlignment.top)
+            let view1AttributedString = NSMutableAttributedString.bs_attachmentString(with: view1, contentMode: UIView.ContentMode.center, attachmentSize: view1.size, alignTo: nil, alignment: TextVerticalAlignment.top)
+            text.append(view1AttributedString!)
+        }
+        
+        do {
+            let view1 = scableImageView(frame: CGRect(origin: .zero, size: CGSize(width: 200, height: 200)))
+            view1.backgroundColor = .black
+            let tapGes = UITapGestureRecognizer(target: self, action: #selector(tapAction(_:)))
+            view1.addGestureRecognizer(tapGes)
+            view1.delegate = self
+            view1.index = text.length
+            
+            let view1AttributedString = NSMutableAttributedString.bs_attachmentString(with: view1, contentMode: UIView.ContentMode.center, attachmentSize: view1.size, alignTo: nil, alignment: TextVerticalAlignment.top)
             text.append(view1AttributedString!)
             text.append(NSAttributedString(string: "\n", attributes: nil))
         }
@@ -150,19 +160,7 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
 //        let rand = Int.random(in: 1..<4)
 //        print("rand = \(rand)")
 //        view1.frame = CGRect(origin: origin, size: CGSize(width: 50 * rand, height: 50 * rand))
-        for attribute in view1AttributedString.attributes(at: 0, effectiveRange: nil){
-            if let attchemnt = attribute.value as? TextAttachment{
-                attchemnt.contentMode = .scaleAspectFill
-                attchemnt.contentInsets = .zero
-                if let view = attchemnt.content as? UIView{
-                    let rand = Int.random(in: 1..<4)
-                    print("rand = \(rand)")
-                    view.frame = CGRect(origin: .zero, size: CGSize(width: 50 * rand, height: 50 * rand))
-                    
-                    print("view.frame:\(view.frame)")
-                }
-            }
-        }
+        
     }
     
     func reloadScableImage(view:scableImageView){
