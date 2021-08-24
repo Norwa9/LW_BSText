@@ -172,7 +172,7 @@ class BSTextAttachmentExample: UIViewController, UIGestureRecognizerDelegate {
         newView.index = view.index
         newView.delegate = self
         newView.backgroundColor = .green
-        let newAttchmentString = NSMutableAttributedString.bs_attachmentString(with: newView, contentMode: .scaleAspectFill, attachmentSize: newView.size, alignTo: nil, alignment: .center)!
+        let newAttchmentString = NSMutableAttributedString.bs_attachmentString(with: newView, contentMode: .scaleAspectFill, attachmentSize: newView.size, alignTo: nil, alignment: .top)!
         
         let mutable = NSMutableAttributedString(attributedString: textView.attributedText!)
         let replaceRange = NSRange(location: view.index, length: 1)

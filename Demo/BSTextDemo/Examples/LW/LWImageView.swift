@@ -12,11 +12,16 @@ import UIKit
 class scableImageView:UIView, UIGestureRecognizerDelegate{
     var dotView:UIView!
     var index:Int!
+    var imageView:UIImageView!
     weak var delegate:BSTextAttachmentExample!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         initUI()
+        
+        imageView = UIImageView(image: UIImage(named: "pia@2x.png"))
+        self.addSubview(imageView)
+        imageView.frame = self.bounds
     }
     
     required init?(coder: NSCoder) {
@@ -65,6 +70,7 @@ class scableImageView:UIView, UIGestureRecognizerDelegate{
     }
     
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true//如果作判断的话，本view会拦截textView的上下滑动手势
         super.gestureRecognizerShouldBegin(gestureRecognizer)
         let p: CGPoint = gestureRecognizer.location(in: self)
         if p.x < self.width - 20 {
